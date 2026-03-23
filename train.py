@@ -24,7 +24,8 @@ import tarfile
 
 import numpy as np
 from six.moves import urllib
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import tensor_shape
@@ -37,7 +38,7 @@ FLAGS = None
 # we're using for Inception v3. These include things like tensor names and their
 # sizes. If you want to adapt this script to work with another model, you will
 # need to update these to reflect the values in the network you're using.
-DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
+DATA_URL = 'https://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
 
 BOTTLENECK_TENSOR_NAME = 'pool_3/_reshape:0'
 BOTTLENECK_TENSOR_SIZE = 2048
@@ -857,7 +858,7 @@ def main(_):
 
         # Write out the trained graph and labels with the weights stored as
         # constants.
-        output_graph_def = graph_util.convert_variables_to_constants(
+        output_graph_def = tf.graph_util.convert_variables_to_constants(
                 sess, graph.as_graph_def(), [FLAGS.final_tensor_name])
         with gfile.FastGFile(FLAGS.output_graph, 'wb') as f:
             f.write(output_graph_def.SerializeToString())

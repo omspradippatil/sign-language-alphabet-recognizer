@@ -99,3 +99,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Project training data and generated training artifacts
+dataset/
+mini_dataset/
+quick_dataset_all/
+logs/bottlenecks/
+logs/bottlenecks_all/
+logs/training_summaries/

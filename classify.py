@@ -1,13 +1,30 @@
-import tensorflow as tf
 import sys
 import os
+from pathlib import Path
 
 
 # Disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 image_path = sys.argv[1]
+
+
+def resolve_artifact(primary_path, fallback_path, artifact_name):
+    primary = Path(primary_path)
+    fallback = Path(fallback_path)
+    if primary.exists():
+        return str(primary)
+    if fallback.exists():
+        return str(fallback)
+    raise FileNotFoundError(
+        "Missing {}. Expected '{}' or '{}'.".format(artifact_name, primary_path, fallback_path)
+    )
+
+
+labels_path = resolve_artifact("logs/output_labels.txt", "logs/trained_labels.txt", "labels file")
+graph_path = resolve_artifact("logs/output_graph.pb", "logs/trained_graph.pb", "graph file")
 
 # Read the image_data
 image_data = tf.gfile.FastGFile(image_path, 'rb').read()
@@ -15,10 +32,10 @@ image_data = tf.gfile.FastGFile(image_path, 'rb').read()
 
 # Loads label file, strips off carriage return
 label_lines = [line.rstrip() for line
-                   in tf.gfile.GFile("logs/output_labels.txt")]
+                   in tf.gfile.GFile(labels_path)]
 
 # Unpersists graph from file
-with tf.gfile.FastGFile("logs/output_graph.pb", 'rb') as f:
+with tf.gfile.FastGFile(graph_path, 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
     _ = tf.import_graph_def(graph_def, name='')

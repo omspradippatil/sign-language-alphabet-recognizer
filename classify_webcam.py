@@ -9,7 +9,8 @@ import cv2
 
 # Disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 def predict(image_data):
 
@@ -62,7 +63,7 @@ with tf.Session() as sess:
             img_cropped = img[y1:y2, x1:x2]
 
             c += 1
-            image_data = cv2.imencode('.jpg', img_cropped)[1].tostring()
+            image_data = cv2.imencode('.jpg', img_cropped)[1].tobytes()
             
             a = cv2.waitKey(1) # waits to see if `esc` is pressed
             
